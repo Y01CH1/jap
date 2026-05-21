@@ -1,5 +1,5 @@
 import pytest
-from app.schemas.detection import DetectionResponse, Verdict
+from app.schemas.detection import DetectionResponse, Verdict, score_to_verdict
 
 
 class TestDetectionResponse:
@@ -34,8 +34,6 @@ class TestDetectionResponse:
         assert resp.verdict == Verdict.UNCERTAIN
 
     def test_score_from_detection_returns_correct_verdict(self):
-        from app.schemas.detection import score_to_verdict
-
         assert score_to_verdict(0.95) == Verdict.LIKELY_AI
         assert score_to_verdict(0.71) == Verdict.LIKELY_AI
         assert score_to_verdict(0.70) == Verdict.UNCERTAIN
