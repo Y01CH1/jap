@@ -30,7 +30,10 @@ export function useDetection(): UseDetectionReturn {
     objectUrls.current.push(thumbnailUrl);
 
     try {
-      const data = await detectImage(file, (pct) => setProgress(pct));
+      const data = await detectImage(file, (pct) => {
+        setProgress(pct);
+        if (pct >= 100) setState('detecting');
+      });
       setResult(data);
 
       setHistory((prev) => [
