@@ -37,9 +37,18 @@ async def detect(request: Request, file: UploadFile = File(...)):
     if content_length and int(content_length) > settings.max_file_size_mb * 1024 * 1024 + 1024:
         return _error_response(413, "File too large", "file_too_large")
 
-    contents = await file.read()
-    if len(contents) > settings.max_file_size_mb * 1024 * 1024:
+    max_bytes = settings.max_file_size_mb * 1024 * 1024
+    buf = BytesIO()
+    remaining = max_bytes + 1
+    while remaining > 0:
+        chunk = await file.read(min(1024 * 1024, remaining))
+        if not chunk:
+            break
+        buf.write(chunk)
+        remaining -= len(chunk)
+    if buf.tell() > max_bytes:
         return _error_response(413, "File too large", "file_too_large")
+    contents = buf.getvalue()
 
     try:
         image = Image.open(BytesIO(contents))
