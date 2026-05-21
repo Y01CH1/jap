@@ -26,7 +26,9 @@ async def detect(request: Request, file: UploadFile = File(...)):
     if not rate_limiter.is_allowed(client_ip):
         return _error_response(429, "Rate limit exceeded. Try again later.", "rate_limited")
 
-    ext = file.filename.split(".")[-1].lower() if "." in file.filename else ""
+    if not file.filename:
+        return _error_response(422, "Filename is missing", "missing_filename")
+    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
     if ext not in settings.allowed_extensions:
         return _error_response(422, f"Unsupported format: .{ext}", "invalid_format")
 
