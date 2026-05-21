@@ -1,6 +1,3 @@
-from unittest.mock import MagicMock
-
-import numpy as np
 import pytest
 from PIL import Image
 
@@ -8,7 +5,7 @@ from app.services.detector import BaseDetector, DetectionResult
 
 
 class FakeDetector(BaseDetector):
-    def load(self):
+    def load(self) -> None:
         self._loaded = True
 
     def detect(self, image: Image.Image) -> DetectionResult:
@@ -25,9 +22,13 @@ class TestDetectionResult:
         result = DetectionResult(score=1.5, model_name="test")
         assert 0.0 <= result.score <= 1.0
 
+    def test_empty_model_name_raises(self):
+        with pytest.raises(ValueError, match="model_name must not be empty"):
+            DetectionResult(score=0.5, model_name="")
+
 
 class TestBaseDetector:
-    def test_subclass_must_implement_detect(self):
+    def test_fake_detector_returns_expected_result(self):
         detector = FakeDetector()
         img = Image.new("RGB", (64, 64))
         result = detector.detect(img)
