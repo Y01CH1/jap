@@ -36,7 +36,12 @@ async def detect(request: Request, file: UploadFile = File(...)):
     if len(contents) > settings.max_file_size_mb * 1024 * 1024:
         return _error_response(413, "File too large", "file_too_large")
 
-    image = Image.open(BytesIO(contents))
+    try:
+        image = Image.open(BytesIO(contents))
+        image.verify()
+        image = Image.open(BytesIO(contents))
+    except Exception:
+        return _error_response(422, "Invalid or corrupted image", "invalid_image")
     detector = request.app.state.detector
 
     start = time.perf_counter()
