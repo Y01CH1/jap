@@ -34,8 +34,12 @@ async def detect(request: Request, file: UploadFile = File(...)):
         return _error_response(422, f"Unsupported format: .{ext}", "invalid_format")
 
     content_length = request.headers.get("content-length")
-    if content_length and int(content_length) > settings.max_file_size_mb * 1024 * 1024 + 1024:
-        return _error_response(413, "File too large", "file_too_large")
+    if content_length:
+        try:
+            if int(content_length) > settings.max_file_size_mb * 1024 * 1024 + 1024:
+                return _error_response(413, "File too large", "file_too_large")
+        except ValueError:
+            pass
 
     max_bytes = settings.max_file_size_mb * 1024 * 1024
     buf = BytesIO()
