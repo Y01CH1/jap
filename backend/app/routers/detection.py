@@ -1,3 +1,4 @@
+import asyncio
 import time
 import uuid
 from io import BytesIO
@@ -49,7 +50,7 @@ async def detect(request: Request, file: UploadFile = File(...)):
     detector = request.app.state.detector
 
     start = time.perf_counter()
-    result = detector.detect(image)
+    result = await asyncio.to_thread(detector.detect, image)
     elapsed_ms = (time.perf_counter() - start) * 1000
 
     return DetectionResponse(
