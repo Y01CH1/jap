@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { DetectionResponse, DetectionState, HistoryEntry } from '../types';
 import { detectImage } from '../services/api';
 
@@ -64,6 +64,13 @@ export function useDetection(): UseDetectionReturn {
     setProgress(0);
     setResult(null);
     setError(null);
+  }, []);
+
+  useEffect(() => {
+    const urls = objectUrls.current;
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
   }, []);
 
   return { state, progress, result, error, history, submit, reset };

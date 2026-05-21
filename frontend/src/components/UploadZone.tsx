@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { DetectionState } from '../types';
 import styles from './UploadZone.module.css';
@@ -16,11 +16,20 @@ export function UploadZone({ state, progress, onUpload }: UploadZoneProps) {
     (accepted: File[]) => {
       if (accepted.length === 0) return;
       const file = accepted[0];
-      setPreview(URL.createObjectURL(file));
+      setPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(file);
+      });
       onUpload(file);
     },
     [onUpload]
   );
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
