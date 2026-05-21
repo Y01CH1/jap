@@ -50,6 +50,9 @@ export function useDetection(): UseDetectionReturn {
 
       setState('done');
     } catch (err: unknown) {
+      URL.revokeObjectURL(thumbnailUrl);
+      objectUrls.current = objectUrls.current.filter((u) => u !== thumbnailUrl);
+
       const msg =
         err && typeof err === 'object' && 'message' in err
           ? (err as { message: string }).message
